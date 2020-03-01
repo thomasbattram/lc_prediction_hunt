@@ -100,39 +100,43 @@ roc.test(ROC.base, ROC.plus.cpg.nodob)
 # and 6: current ≥20.1 pyrs].
 
 cpg_sites <- grep("cg", colnames(phen_res), value = TRUE)
-vars1 <- paste("strata(CASESET)", sep = " + ")
+vars1 <- paste(paste(cpg_sites, collapse = " + "), "strata(CASESET)", sep = " + ")
 form1 <- as.formula(paste0("LUNG_CANCER_CASE ~ ", vars1))
 fit1 <- clogit(form1, data = phen_res)
 
-vars2 <- paste(paste(cpg_sites, collapse = " + "), "strata(CASESET)", sep = " + ")
+ahrr_cpg <- "cg05575921"
+vars2 <- paste(paste(ahrr_cpg, collapse = " + "), "strata(CASESET)", sep = " + ")
 form2 <- as.formula(paste0("LUNG_CANCER_CASE ~ ", vars2))
 fit2 <- clogit(form2, data = phen_res)
 
-ROC.base <- roc(phen_res$LUNG_CANCER_CASE, fit1$linear.predictors, ci = T)
-ROC.plus.cpg <-roc(phen_res$LUNG_CANCER_CASE, fit2$linear.predictors, ci = T)
-res <- roc.test(ROC.base, ROC.plus.cpg)
+roc_all <- roc(phen_res$LUNG_CANCER_CASE, fit1$linear.predictors, ci = T)
+roc_ahrr <-roc(phen_res$LUNG_CANCER_CASE, fit2$linear.predictors, ci = T)
+res <- roc.test(roc_all, roc_ahrr)
 
-auc <- t(as.data.frame(ci.auc(ROC.plus.cpg))) %>%
-	as.data.frame
-rownames(auc) <- NULL
-colnames(auc) <- c("lower", "estimate", "upper")
-plot_text <- paste0("AUC = ", comma(auc$estimate), " (95% CI: ",
-					comma(auc$lower), " - ", comma(auc$upper), ")")
+roc_list <- list(all = roc_all, ahrr = roc_ahrr)
+i=1
+roc_res <- lapply(1:2, function(i) {
+	roc_dat <- roc_list[[i]]
+	auc_dat <- t(as.data.frame(ci.auc(roc_dat))) %>%
+		as.data.frame
+	rownames(auc_dat) <- NULL
+	colnames(auc_dat) <- c("lower", "estimate", "upper")
+	plot_text <- paste0("AUC = ", comma(auc_dat$estimate), " (95% CI: ",
+					comma(auc_dat$lower), " - ", comma(auc_dat$upper), ")")
+	return(list(roc_dat = roc_dat, auc = auc_dat, plot_text = plot_text))
+})
+names(roc_res) <- names(roc_list)
 
-save(ROC.plus.cpg, file = "report/report_data/roc_dat.RData")
+save(roc_res, file = "report/report_data/roc_dat.RData")
 
-p <- pROC::ggroc(list(ROC.plus.cpg)) +
+p <- pROC::ggroc(list(roc_res$ahrr$roc_dat)) +
 	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
 	annotate("text", x = 0.7, y = 0.9, label = plot_text) +
 	theme_bw() +
 	theme(legend.position = "none")
 ggsave("results/roc_plot.pdf", plot = p)
 
-test <- data.frame(y = sample(c(0, 1), 10, replace = T), 
-				   x = 1:10)
-GLM <- glm(y ~., data = test, family = binomial(link = "logit"))
-GLM$y
-GLM$fitted.values
+
 
 # models
 GLM <- glm(Y ~. , data = X.base, family = binomial(logit))
