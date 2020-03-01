@@ -1,0 +1,4 @@
+qc_stage	n_cpg	n_sample
+original_data	485512	478
+det_p_removed	474237	477
+incomplete_pairs	474237	468
