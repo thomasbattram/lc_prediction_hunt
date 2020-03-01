@@ -118,6 +118,8 @@ save(out, file = "~/lc_prediction_hunt/data/cleaned_pheno_and_meth_data.RData")
 # write out qc summary
 write.table(qc_sum, file = "data/qc_summary.txt", 
 			quote = FALSE, row.names = FALSE, col.names = TRUE, sep = "\t")
+write.table(qc_sum, file = "report/report_data/qc_summary.txt", 
+			quote = FALSE, row.names = FALSE, col.names = TRUE, sep = "\t")
 
 #create chip ID
 chip.id<-unlist(strsplit(phen.all$sentrix,split="_"))
