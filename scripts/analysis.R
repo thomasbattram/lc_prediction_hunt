@@ -6,7 +6,7 @@
 # are looking to test how well the predict lung cancer in an independent
 # dataset --> NSHDS.
 
-pkgs <- c("tidyverse")
+pkgs <- c("tidyverse", "survival", "pROC")
 lapply(pkgs, require, character.only = TRUE)
 
 devtools::load_all("~/repos/usefunc/")
@@ -112,6 +112,21 @@ ROC.base <- roc(phen_res$LUNG_CANCER_CASE, fit1$linear.predictors, ci = T)
 ROC.plus.cpg <-roc(phen_res$LUNG_CANCER_CASE, fit2$linear.predictors, ci = T)
 res <- roc.test(ROC.base, ROC.plus.cpg)
 
+auc <- t(as.data.frame(ci.auc(ROC.plus.cpg))) %>%
+	as.data.frame
+rownames(auc) <- NULL
+colnames(auc) <- c("lower", "estimate", "upper")
+plot_text <- paste0("AUC = ", comma(auc$estimate), " (95% CI: ",
+					comma(auc$lower), " - ", comma(auc$upper), ")")
+
+save(ROC.plus.cpg, file = "report/report_data/roc_dat.RData")
+
+p <- pROC::ggroc(list(ROC.plus.cpg)) +
+	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
+	annotate("text", x = 0.7, y = 0.9, label = plot_text) +
+	theme_bw() +
+	theme(legend.position = "none")
+ggsave("results/roc_plot.pdf", plot = p)
 
 test <- data.frame(y = sample(c(0, 1), 10, replace = T), 
 				   x = 1:10)

@@ -38,12 +38,20 @@ Probes that have detection p values of >0.01 on 5% or more samples and samples t
 
 ## Models used
 
-Conditional logistic regression
-formula: LUNG_CANCER_CASE = CpG1 + CpG2 + ... CpG41 + strata(CASESET)
+Conditional logistic regression code:
+
+``` {r code, echo = TRUE, eval = FALSE}
+
+fit <- clogit(LUNG_CANCER_CASE = CpG1 + CpG2 + ... + CpGn + strata(CASESET))
+
+```
 
 ## Results
 
-ROC curve:
+``` {r roc_plot, results = "asis", message = FALSE}
+```
+
+
 
 
 
