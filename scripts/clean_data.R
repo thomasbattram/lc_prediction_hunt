@@ -83,6 +83,11 @@ meth_res <- map_dfc(1:ncol(meth_dat), function(i) {
 })
 colnames(meth_res) <- colnames(no_failed_dat)
 
+# QC summary
+qc_sum <- data.frame(qc_stage = c("original_data", "det_p_removed"), 
+					 n_cpg = c(nrow(betaFnNorm), nrow(meth_res) - 1), 
+					 n_sample = c(ncol(betaFnNorm), ncol(meth_res) - 1))
+
 # ------------------------------------------------
 # sort the phenotype data
 # ------------------------------------------------
@@ -109,6 +114,10 @@ meth_res <- meth_res %>%
 
 out <- list(pheno = phen_dat, meth = meth_res)
 save(out, file = "~/lc_prediction_hunt/data/cleaned_pheno_and_meth_data.RData")
+
+# write out qc summary
+write.table(qc_sum, file = "data/qc_summary.txt", 
+			quote = FALSE, row.names = FALSE, col.names = TRUE, sep = "\t")
 
 #create chip ID
 chip.id<-unlist(strsplit(phen.all$sentrix,split="_"))
