@@ -17,12 +17,14 @@ opts_chunk$set(echo = FALSE,
 ```
 
 ```{r call_source}
-read_chunk("~/Desktop/projects/side_project/lc_prediction_hunt/report/report.R")
+read_chunk("~/Desktop/projects/side_projects/lc_prediction_hunt/report/report.R")
 ```
 
 ``` {r load_data, results = "hide", message = FALSE}
 ```
 
+```{r roc_setup, results = "hide", message = FALSE}
+```
 
 ## Goal:
 
@@ -34,7 +36,7 @@ To test the predictive performance of the top 76 CpGs identified in a lung cance
 
 41 of the 76 probes were present in the 450k dataset.
 
-Probes that have detection p values of >0.01 on 5% or more samples and samples that have detection p values of >0.01 for 5% or more probes were removed. None of the 41 probes were removed. `r qc_sum[qc_sum$qc_stage == "det_p_removed", "n_sample"]` were left. Finally, after removing incomplete case-control pairs `r qc_sum[qc_sum$qc_stage == "incomplete_pairs", "n_sample"]` were used in the analysis.
+Probes that have detection p values of >0.01 on 5% or more samples and samples that have detection p values of >0.01 for 5% or more probes were removed. None of the 41 probes were removed. `r qc_sum[qc_sum$qc_stage == "det_p_removed", "n_sample"]` samples were left. Finally, after removing incomplete case-control pairs `r qc_sum[qc_sum$qc_stage == "incomplete_pairs", "n_sample"]` were used in the analysis.
 
 ## Models used
 
@@ -42,7 +44,9 @@ Conditional logistic regression code:
 
 ``` {r code, echo = TRUE, eval = FALSE}
 
-fit <- clogit(LUNG_CANCER_CASE = CpG1 + CpG2 + ... + CpGn + strata(CASESET))
+fit_all <- clogit(LUNG_CANCER_CASE ~ CpG1 + CpG2 + ... + CpGn + strata(CASESET))
+
+fit_ahrr <- clogit(LUNG_CANCER_CASE ~ cg + strata(CASESET))
 
 ```
 

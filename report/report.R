@@ -12,9 +12,9 @@ load(paste0(dir, "/roc_dat.RData"))
 
 ## ---- roc_setup --------------------------------
 
-p <- pROC::ggroc(list(ROC.plus.cpg)) +
+p <- pROC::ggroc(list(roc_res$res)) +
 	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
-	annotate("text", x = 0.7, y = 0.9, label = plot_text) +
+	annotate("text", x = 0.7, y = 0.9, label = roc_res$plot_text) +
 	theme_bw() +
 	theme(legend.position = "none")
 
