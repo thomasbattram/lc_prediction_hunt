@@ -83,11 +83,6 @@ meth_res <- map_dfc(1:ncol(meth_dat), function(i) {
 })
 colnames(meth_res) <- colnames(no_failed_dat)
 
-# QC summary
-qc_sum <- data.frame(qc_stage = c("original_data", "det_p_removed"), 
-					 n_cpg = c(nrow(betaFnNorm), nrow(meth_res) - 1), 
-					 n_sample = c(ncol(betaFnNorm), ncol(meth_res) - 1))
-
 # ------------------------------------------------
 # sort the phenotype data
 # ------------------------------------------------
@@ -111,6 +106,11 @@ phen_dat <- phen_dat %>%
 	dplyr::filter(CASESET %in% pairs)
 meth_res <- meth_res %>%
 	dplyr::select(cpg, one_of(phen_dat$sentrix))
+
+# QC summary
+qc_sum <- data.frame(qc_stage = c("original_data", "det_p_removed", "incomplete_pairs"), 
+					 n_cpg = c(nrow(betaFnNorm), nrow(meth_dat), nrow(meth_res)), 
+					 n_sample = c(ncol(betaFnNorm), ncol(meth_dat) - 1, ncol(meth_res) - 1))
 
 out <- list(pheno = phen_dat, meth = meth_res)
 save(out, file = "~/lc_prediction_hunt/data/cleaned_pheno_and_meth_data.RData")
