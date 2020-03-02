@@ -46,7 +46,7 @@ Conditional logistic regression code:
 
 fit_all <- clogit(LUNG_CANCER_CASE ~ CpG1 + CpG2 + ... + CpGn + strata(CASESET))
 
-fit_ahrr <- clogit(LUNG_CANCER_CASE ~ cg + strata(CASESET))
+fit_ahrr <- clogit(LUNG_CANCER_CASE ~ cg05575921 + strata(CASESET))
 
 ```
 
