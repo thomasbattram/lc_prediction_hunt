@@ -78,7 +78,8 @@ overall <- data.frame(
 			)
 cpg_dat_sum <- bind_rows(list(cpg_dat_sum, overall))
 
-write.table(cpg_dat_sum, "report/report_data/ewas_dat_summary.txt")
+write.table(cpg_dat_sum, "report/report_data/ewas_dat_summary.txt", 
+			row.names = F, col.names = T, quote = F, sep = "\t")
 
 # aries check
 # load("/panfs/panasas01/sscm/ms13525/aries-release-v4/data/betas/data.Robj")
