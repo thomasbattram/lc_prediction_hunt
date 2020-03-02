@@ -28,15 +28,13 @@ read_chunk("~/Desktop/projects/side_projects/lc_prediction_hunt/report/report.R"
 
 ## Goal:
 
-To test the predictive performance of the top 76 CpGs identified in a lung cancer EWAS performed in HUNT, in an independent dataset (NSHDS). 
+To test the performance of CpGs identified via smoking and lung cancer EWAS to predict lung cancer within NSHDS. These CpGs were identified via EWAS in HUNT
 
 ## Quality control of data:
 
 `r qc_sum[qc_sum$qc_stage == "original_data", "n_sample"]` samples present with DNA methylation data
 
-41 of the 76 probes were present in the 450k dataset.
-
-Probes that have detection p values of >0.01 on 5% or more samples and samples that have detection p values of >0.01 for 5% or more probes were removed. None of the 41 probes were removed. `r qc_sum[qc_sum$qc_stage == "det_p_removed", "n_sample"]` samples were left. Finally, after removing incomplete case-control pairs `r qc_sum[qc_sum$qc_stage == "incomplete_pairs", "n_sample"]` were used in the analysis.
+Probes that have detection p values of >0.01 on 5% or more samples and samples that have detection p values of >0.01 for 5% or more probes were removed. None of the probes of interest were removed. `r qc_sum[qc_sum$qc_stage == "det_p_removed", "n_sample"]` samples were left. Finally, after removing incomplete case-control pairs `r qc_sum[qc_sum$qc_stage == "incomplete_pairs", "n_sample"]` were used in the analysis.
 
 ## Models used
 
@@ -44,20 +42,32 @@ Conditional logistic regression code:
 
 ``` {r code, echo = TRUE, eval = FALSE}
 
-fit_all <- clogit(LUNG_CANCER_CASE ~ CpG1 + CpG2 + ... + CpGn + strata(CASESET))
-
-fit_ahrr <- clogit(LUNG_CANCER_CASE ~ cg05575921 + strata(CASESET))
+fit <- clogit(LUNG_CANCER_CASE ~ CpG1 + CpG2 + ... + CpGn + strata(CASESET))
 
 ```
 
+This code was run using 4 CpG sets:
+1. EWAS of smoking
+2. EWAS of change in smoking status
+3. EWAS of lung cancer
+4. cg05575921 _AHRR_ only
+
+CpGs were weighted according to beta coefficients from their EWAS. For the cg05575921 _AHRR_ only model, the CpG beta value was weighted by the beta coefficient for that CpG from the smoking EWAS. For the lung cancer EWAS CpG set, the CpG beta values were weighted by their log(OR).
+
 ## Results
+
+```{r ewas_sum, results = "asis", message = FALSE}
+```
+
+Summary of the number of CpG sites in each CpG set 
 
 ``` {r roc_plot, results = "asis", message = FALSE}
 ```
 
+``` {r auc_tab, results = "asis", message = FALSE}
+```
 
-
-
+AUCs from the ROC curves above
 
 
 

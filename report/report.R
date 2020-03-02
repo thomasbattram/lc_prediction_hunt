@@ -1,27 +1,51 @@
 ## ---- load_data --------------------------------
 
-pkgs <- c("tidyverse", "knitr")
+pkgs <- c("tidyverse", "knitr", "pander")
 lapply(pkgs, require, character.only = T)
 
 dir <- "~/Desktop/projects/side_projects/lc_prediction_hunt/report/report_data/"
 
 qc_sum <- read_tsv(paste0(dir, "qc_summary.txt"))
 
+ewas_sum <- read_tsv(paste0(dir, "ewas_dat_summary.txt"))
+
 # roc results
 load(paste0(dir, "/roc_dat.RData"))
 
-## ---- roc_setup --------------------------------
+# fix this in previous scripts!!
+names(all_res)[2] <- "smoking_status_change"
+ewas_sum[2,1] <- "smoking_status_change"
 
-res <- list(roc_res$all$roc_dat, roc_res$ahrr$roc_dat)
-names(res) <- c("all_cpgs", "cg05575921 (AHRR)")
+## ---- ewas_sum --------------------------------
+pandoc.table(ewas_sum)
+
+## ---- roc_setup --------------------------------
+x=1
+roc_res <- lapply(1:length(all_res), function(x) {
+	res_nam <- names(all_res)[x]
+	all_res[[x]]$roc_dat
+})
+names(roc_res) <- names(all_res)
+
+# generate AUC tables
+auc_res <- map_dfr(1:length(all_res), function(x) {
+	res_nam <- names(all_res)[x]
+	auc_dat <- all_res[[res_nam]]$auc %>%
+		mutate(cpg_set = res_nam) %>%
+		dplyr::select(cpg_set, estimate, lower, upper) %>%
+		rename(auc = estimate, ci_lower = lower, ci_upper = upper)
+	return(auc_dat)
+})
+
 ## why doesn't this work!!!
-p_both <- pROC::ggroc(res) +
+p <- pROC::ggroc(roc_res) +
 	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
-	annotate("text", x = 0.7, y = 0.95, label = roc_res$all$plot_text) +
-	annotate("text", x = 0.7, y = 0.9, label = roc_res$ahrr$plot_text) +
 	theme_bw() +
 	labs(colour = NULL)
 	# theme(legend.position = "none")
 
 ## ---- roc_plot --------------------------------
-print(p_both)
+print(p)
+
+## ---- auc_tab --------------------------------
+pandoc.table(auc_res)
