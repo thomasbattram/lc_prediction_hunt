@@ -12,9 +12,19 @@ load(paste0(dir, "/roc_dat.RData"))
 
 ## ---- roc_setup --------------------------------
 
-p <- pROC::ggroc(list(roc_res$res)) +
+res <- list(roc_res$all$roc_dat, roc_res$ahrr$roc_dat)
+names(res) <- c("all_cpgs", "cg05575921 (AHRR)")
+## why doesn't this work!!!
+p_all <- pROC::ggroc(res) +
 	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
-	annotate("text", x = 0.7, y = 0.9, label = roc_res$plot_text) +
+	annotate("text", x = 0.7, y = 0.9, label = roc_res$all$plot_text) +
+	annotate("text", x = 0.7, y = 0.85, label = roc_res$ahrr$plot_text) +
+	theme_bw()
+	# theme(legend.position = "none")
+
+p_ahrr <- pROC::ggroc(list(roc_res$ahrr$roc_dat)) +
+	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
+	annotate("text", x = 0.7, y = 0.9, label = roc_res$ahrr$plot_text) +
 	theme_bw() +
 	theme(legend.position = "none")
 

@@ -117,11 +117,16 @@ roc_list <- list(all = roc_all, ahrr = roc_ahrr)
 i=1
 roc_res <- lapply(1:2, function(i) {
 	roc_dat <- roc_list[[i]]
+	if (names(roc_list[i]) == "ahrr") {
+		cpg_name <- ahrr_cpg
+	} else {
+		cpg_name <- "all_cpgs"
+	}
 	auc_dat <- t(as.data.frame(ci.auc(roc_dat))) %>%
 		as.data.frame
 	rownames(auc_dat) <- NULL
 	colnames(auc_dat) <- c("lower", "estimate", "upper")
-	plot_text <- paste0("AUC = ", comma(auc_dat$estimate), " (95% CI: ",
+	plot_text <- paste0(cpg_name, ": ", comma(auc_dat$estimate), " (95% CI: ",
 					comma(auc_dat$lower), " - ", comma(auc_dat$upper), ")")
 	return(list(roc_dat = roc_dat, auc = auc_dat, plot_text = plot_text))
 })
