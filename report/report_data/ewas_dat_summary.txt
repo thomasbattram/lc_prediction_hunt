@@ -1,0 +1,5 @@
+"ewas" "n_cpgs" "n_cpgs_in_450k" "n_unique_cpgs_in_450k"
+"1" "smoking" 76 41 24
+"2" "smoking_status" 9 6 0
+"3" "lung_cancer" 50 25 10
+"4" "combined" 135 51 51
