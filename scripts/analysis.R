@@ -92,7 +92,10 @@ write.table(cpg_dat_sum, "report/report_data/ewas_dat_summary.txt",
 lc_ewas <- lc_ewas %>%
 	mutate(Coefficient = log(ORb))
 
+ewas[["lung_cancer"]] <- lc_ewas
+
 meth_res2 <- lapply(1:3, function(x) {
+	print(x)
 	# orient the data
 	dat <- meth_res[[x]]
 	rownames(dat) <- dat$cpg
@@ -173,7 +176,7 @@ all_res <- lapply(1:length(cpgs), function(x) {
 	}
 	phen_dat <- phen_res %>%
 		left_join(meth_dat, by = c("sentrix" = "sample"))
-	cpg_sites <- grep("cg", colnames(phen_dat), value = TRUE)
+	cpg_sites <- colnames(phen_dat)[colnames(phen_dat) %in% unique_cpgs]
 	# model
 	vars <- paste(paste(cpg_sites, collapse = " + "), "strata(CASESET)", sep = " + ")
 	form <- as.formula(paste0("LUNG_CANCER_CASE ~ ", vars))
@@ -193,9 +196,9 @@ names(all_res) <- names(cpgs)
 
 save(all_res, file = "report/report_data/roc_dat.RData")
 
-p <- pROC::ggroc(list(roc_res$ahrr$roc_dat)) +
-	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
-	annotate("text", x = 0.7, y = 0.9, label = plot_text) +
-	theme_bw() +
-	theme(legend.position = "none")
-ggsave("results/roc_plot.pdf", plot = p)
+# p <- pROC::ggroc(list(roc_res$ahrr$roc_dat)) +
+# 	geom_abline(intercept = 1, slope = 1, colour = "black", alpha = 0.6) +
+# 	annotate("text", x = 0.7, y = 0.9, label = plot_text) +
+# 	theme_bw() +
+# 	theme(legend.position = "none")
+# ggsave("results/roc_plot.pdf", plot = p)
