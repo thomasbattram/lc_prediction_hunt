@@ -20,8 +20,8 @@ smok_ewas <- read_xlsx("data/hunt_ewas_data.xlsx", sheet = 1)
 smok_stat_ewas <- read_xlsx("data/hunt_ewas_data.xlsx", sheet = 2)
 lc_ewas <- read_xlsx("data/hunt_ewas_data.xlsx", sheet = 3)
 
-meth_data_file <- "~/tb_MB009_LungCancer/RDATA/FunctionalNormalised_Betas_PvaluePassed_Samples.RData"
-load(meth_data_file) 
+# meth_data_file <- "~/tb_MB009_LungCancer/RDATA/FunctionalNormalised_Betas_PvaluePassed_Samples.RData"
+# load(meth_data_file) 
 
 
 # ----------------------------------- 
@@ -164,7 +164,8 @@ roc.test(ROC.base, ROC.plus.cpg.nodob)
 # and 6: current ≥20.1 pyrs].
 
 cpgs <- c(cpgs, list(ahrr = "cg05575921"))
-
+model_type <- c("separate_sites", "score")
+x=1
 all_res <- lapply(1:length(cpgs), function(x) {
 	print(x)
 	ewas_nam <- names(cpgs)[x]
@@ -177,20 +178,29 @@ all_res <- lapply(1:length(cpgs), function(x) {
 	phen_dat <- phen_res %>%
 		left_join(meth_dat, by = c("sentrix" = "sample"))
 	cpg_sites <- colnames(phen_dat)[colnames(phen_dat) %in% unique_cpgs]
-	# model
-	vars <- paste(paste(cpg_sites, collapse = " + "), "strata(CASESET)", sep = " + ")
-	form <- as.formula(paste0("LUNG_CANCER_CASE ~ ", vars))
-	fit <- clogit(form, data = phen_dat)
-	# roc curve
-	roc_res <- roc(phen_dat$LUNG_CANCER_CASE, fit$linear.predictors, ci = T)
-	# auc
-	auc_dat <- t(as.data.frame(ci.auc(roc_res))) %>%
-		as.data.frame
-	rownames(auc_dat) <- NULL
-	colnames(auc_dat) <- c("lower", "estimate", "upper")
-	plot_text <- paste0(ewas_nam, ": ", comma(auc_dat$estimate), " (95% CI: ",
-					comma(auc_dat$lower), " - ", comma(auc_dat$upper), ")")
-	return(list(roc_dat = roc_res, auc = auc_dat, plot_text = plot_text))
+	phen_dat$cpg_score <- rowSums(phen_dat[, cpg_sites, drop = FALSE])
+	out_res <- lapply(1:2, function(i) {
+		model <- model_type[i]
+		if (model == "separate_sites") {
+			vars <- paste(paste(cpg_sites, collapse = " + "), "strata(CASESET)", sep = " + ")
+		} else if (model == "score") {
+			vars <- paste("cpg_score", "strata(CASESET)", sep = " + ")
+		}
+		form <- as.formula(paste0("LUNG_CANCER_CASE ~ ", vars))
+		fit <- clogit(form, data = phen_dat)
+		# roc curve
+		roc_res <- roc(phen_dat$LUNG_CANCER_CASE, fit$linear.predictors, ci = T)
+		# auc
+		auc_dat <- t(as.data.frame(ci.auc(roc_res))) %>%
+			as.data.frame
+		rownames(auc_dat) <- NULL
+		colnames(auc_dat) <- c("lower", "estimate", "upper")
+		plot_text <- paste0(ewas_nam, ": ", comma(auc_dat$estimate), " (95% CI: ",
+						comma(auc_dat$lower), " - ", comma(auc_dat$upper), ")")
+		return(list(roc_dat = roc_res, auc = auc_dat, plot_text = plot_text))
+	})
+	names(out_res) <- model_type
+	return(out_res)
 })
 names(all_res) <- names(cpgs)
 
