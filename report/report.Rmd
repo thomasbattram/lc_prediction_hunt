@@ -42,7 +42,9 @@ Conditional logistic regression code:
 
 ``` {r code, echo = TRUE, eval = FALSE}
 
-fit <- clogit(LUNG_CANCER_CASE ~ CpG1 + CpG2 + ... + CpGn + strata(CASESET))
+fit1 <- clogit(LUNG_CANCER_CASE ~ CpG1 + CpG2 + ... + CpGn + strata(CASESET))
+
+fit2 <- clogit(LUNG_CANCER_CASE ~ CpG_score + strata(CASESET))
 
 ```
 
@@ -61,13 +63,20 @@ CpGs were weighted according to beta coefficients from their EWAS. For the cg055
 
 Summary of the number of CpG sites in each CpG set 
 
-``` {r roc_plot, results = "asis", message = FALSE}
+``` {r roc_plot_separate_sites, results = "asis", message = FALSE}
 ```
+
+ROC curve using fit1 (CpG sites treated separately in the model)
+
+``` {r roc_plot_score, results = "asis", message = FALSE}
+```
+
+ROC curve using fit2 (CpG sites combined into a single score)
 
 ``` {r auc_tab, results = "asis", message = FALSE}
 ```
 
-AUCs from the ROC curves above
+AUCs from the ROC curves above. separate_sites = fit1, score = fit2.
 
 
 
